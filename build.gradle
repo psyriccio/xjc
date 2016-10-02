@@ -1,0 +1,73 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
+ext.mainClass = 'com.sun.tools.xjc.XJCFacade'
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    mavenCentral()
+    maven {
+    	url 'https://raw.github.com/Ekito/maven-repo/master/releases'
+    }
+}
+
+sourceCompatibility = 1.8
+version = 'latest-SNAPSHOT'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'xjc',
+                   'Implementation-Version': version,
+                   'Main-Class': 'com.sun.tools.xjc.XJCFacade'
+    }
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency('com.google.android:android:.*'))
+        exclude(dependency('org.eclipse.swt.win32.win32:.*'))
+    }
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.eclipse.persistence/org.eclipse.persistence.moxy
+    //compile group: 'org.eclipse.persistence', name: 'org.eclipse.persistence.moxy', version: '2.6.4'
+    compile fileTree(dir: 'lib').matching { include '*.jar'}
+}
+
+apply plugin: 'java'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'src'
+            include '**/*.xsd'
+            include '**/*.wsdl'
+            include '../schema/*.xsd'
+            include '**/*.png'
+            include '**/*.xml'
+            include '**/*.ftl'
+            include '**/*.properties'
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
